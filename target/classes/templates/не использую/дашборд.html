@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Animated Dashboard</title>
+  <style>
+    .dashboard {
+      display: flex;
+      flex-direction: column; /* Вертикальное размещение блоков */
+      align-items: center; /* Центрирование по горизонтали */
+      margin-top: 20px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      margin-top: 50px;
+    }
+
+    .card {
+      width: 270px;
+      height: 120px;
+      border-radius: 5px;
+      /* padding: 20px; */
+      box-sizing: border-box;
+      text-align: center;
+      animation: fadeIn 1s ease-in-out forwards;
+      box-shadow: 0 4px 8px rgb(0 0 0 / 59%);
+    }
+
+    .purple {
+      background-color: #9b59b6; /* фиолетовый */
+    }
+
+    .yellow {
+      background-color: #f1c40f; /* желтый */
+    }
+
+    .green {
+      background-color: #2ecc71; /* зеленый */
+    }
+
+    .blue {
+      background-color: #3498db; /* голубой */
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h2 {
+      color: #fff;
+      font-family: Arial, sans-serif;
+      font-size: 18px;
+      font-weight: normal;
+    }
+
+    p {
+      color: #fff;
+      font-family: Arial, sans-serif;
+      font-size: 28px; /* увеличенный размер */
+      font-weight: bold;
+      text-align: center;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+<div class="dashboard">
+  <div class="row">
+    <!-- <div class="card purple">
+       <h2></h2>
+       <p id="profitCount">0 руб.</p>
+     </div>
+     <div class="card yellow">
+       <h2>Корзина</h2>
+       <p id="cartCount">0 шт.</p>
+     </div>-->
+    <div class="card purple">
+      <h2>Заказы</h2>
+      <p id="orderCount">0 шт.</p>
+    </div>
+    <div class="card blue">
+      <h2>Расходы</h2>
+      <p id="expensesCount">0 руб.</p>
+    </div>
+  </div>
+
+
+  <div class="row">
+    <div class="card purple">
+      <h2>Прибыль за последнюю неделю</h2>
+      <p id="timeCount">0 руб.</p>
+    </div>
+    <div class="card yellow">
+      <h2>Прибыль за последний месяц</h2>
+      <p id="visitsCount">0 руб.</p>
+    </div>
+    <div class="card green">
+      <h2>Прибыль за  последние полгода</h2>
+      <p id="subscribersCount">0 руб.</p>
+    </div>
+    <div class="card blue">
+      <h2>Прибыль за все время</h2>
+      <p id="likesCount">0 руб.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function animateValue(id, start, end, duration, unit) {
+    var obj = document.getElementById(id);
+    var range = end - start;
+    var minTimer = 50;
+    var stepTime = Math.max(Math.ceil(duration / range), minTimer);
+    var startTime = new Date().getTime();
+    var endTime = startTime + duration;
+    var timer;
+
+    function run() {
+      var now = new Date().getTime();
+      var remaining = Math.max((endTime - now) / duration, 0);
+      var value = Math.round(end - (remaining * range));
+      obj.textContent = value + " " + unit;
+      if (value == end) {
+        clearInterval(timer);
+      }
+    }
+
+    run(); // Запускаем сразу для отображения начального значения
+    timer = setInterval(run, stepTime);
+  }
+
+ /* animateValue('profitCount', 0, 500, 3000, "руб.");
+  animateValue('cartCount', 0, 30, 3000, "шт.");
+*/  animateValue('orderCount', 0, 20, 3000, "шт.");
+  animateValue('expensesCount', 0, 1000, 3000, "руб.");
+  animateValue('timeCount', 0, 24, 3000, "руб");
+  animateValue('visitsCount', 0, 100, 3000, "шт.");
+  animateValue('subscribersCount', 0, 1000, 3000, "чел.");
+  animateValue('likesCount', 0, 500, 3000, "шт.");
+</script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Прогноз Объемов Спроса</title>
+  <!-- Подключение Bootstrap для стилей -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <!-- Подключение Chart.js для графиков -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+
+  <style>
+    #demandForecastChart {
+      width: 400px;  /* Измените на нужную вам ширину */
+      height: 200px; /* Измените на нужную вам высоту */
+    }
+  </style>
+</head>
+<body>
+<div class="container mt-5">
+  <div>
+  <h1 class="mb-4">Прогноз Объемов Спроса</h1>
+
+  <!-- Используйте таблицу для отображения исторических данных -->
+  <table class="table table-bordered">
+    <thead>
+    <tr>
+      <th>Месяц</th>
+      <th>Продажи</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- Вставьте ваши данные о продажах здесь -->
+    <tr>
+      <td>Январь</td>
+      <td>100</td>
+    </tr>
+    <tr>
+      <td>Февраль</td>
+      <td>120</td>
+    </tr>
+    <!-- ... -->
+    </tbody>
+  </table>
+
+  <!-- Используйте холст для рисования графика прогноза -->
+  <canvas id="demandForecastChart" width="400" height="200"></canvas>
+
+  </div>
+</div>
+
+<script>
+  // Ваши данные о продажах
+  var salesData = [100, 120, /* ... */ ];
+
+  // Ваши метки для месяцев
+  var months = ["Янв", "Фев", /* ... */ ];
+
+  // Получите контекст холста
+  var ctx = document.getElementById('demandForecastChart').getContext('2d');
+
+  // Создайте график с использованием Chart.js
+  var demandForecastChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: months,
+      datasets: [{
+        label: 'Прогноз Объемов Спроса',
+        data: salesData,
+        backgroundColor: 'rgba(75, 192, 192, 0.2)', // Цвет заливки
+        borderColor: 'rgba(75, 192, 192, 1)', // Цвет границы
+        borderWidth: 2 // Толщина границы
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true, // Измените на true или false в зависимости от предпочтений
+      aspectRatio: 1, // Пропорция сторон (ширина:высота)
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: 'Месяц'
+          }
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'Продажи'
+          }
+        }
+      }
+    }
+
+
+  });
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://api-maps.yandex.ru/2.1/?apikey=08da7702-f104-43c4-a46e-0fc23175899a&lang=ru_RU"></script>
+  <title>Yandex Maps Example</title>
+  <style>
+    .mapBlock {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f4f4f4;
+    }
+
+/*    #my-map-example-controls label {
+      margin-bottom: 5px;
+      color: #333;
+    }
+
+    #my-map-example-controls input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      box-sizing: border-box;
+    }*/
+
+    #my-map-example-container {
+      display: flex;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 5px;
+      overflow: hidden;
+      width: 1000px; /* Увеличил ширину до 1000px */
+    }
+    #my-map-example-map {
+      width: 600px;
+      height: 400px;
+      margin-bottom: 20px;
+    }
+
+    #my-map-example-controls {
+      width: 300px;
+      padding-left: 90px; /* Уменьшил внутренний отступ */
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start; /* Изменил выравнивание по левому краю */
+    }
+
+    #my-map-example-controls label {
+      margin-bottom: 8px; /* Уменьшил отступ между ярлыками */
+      color: #333;
+    }
+
+    #my-map-example-controls input {
+      width: calc(100% - 16px); /* Уменьшил ширину, чтобы компенсировать внутренний отступ */
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      box-sizing: border-box;
+    }
+
+
+    #my-map-example-button {
+      background-color: #4caf50;
+      color: #fff;
+      border: none;
+      padding: 10px;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: background-color 0.3s;
+    }
+
+    #my-map-example-button:hover {
+      background-color: #45a049;
+    }
+
+    #my-map-example-route-info {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    #my-map-example-route-info th, #my-map-example-route-info td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    #my-map-example-route-info th {
+      background-color: #4caf50;
+      color: #fff;
+    }
+
+    #my-map-example-route-info td {
+      background-color: #f9f9f9;
+    }
+  </style>
+</head>
+<body>
+<div class="mapBlock">
+<div id="my-map-example-container">
+  <div id="my-map-example-map"></div>
+  <div id="my-map-example-controls">
+    <label for="my-map-example-from">Откуда:</label>
+    <input type="text" id="my-map-example-from" placeholder="Введите адрес">
+
+    <label for="my-map-example-to">Куда:</label>
+    <input type="text" id="my-map-example-to" placeholder="Введите адрес">
+
+    <label for="my-map-example-fuelConsumption">Расход топлива (л/100км):</label>
+    <input type="number" id="my-map-example-fuelConsumption" placeholder="Расход топлива">
+
+    <label for="my-map-example-fuelPrice">Стоимость бензина (руб/л):</label>
+    <input type="number" id="my-map-example-fuelPrice" placeholder="Стоимость бензина">
+
+    <button id="my-map-example-button" onclick="buildRoutes()">Построить маршруты</button>
+
+    <table id="my-map-example-route-info">
+      <thead>
+      <tr>
+        <th>Маршрут</th>
+        <th>Километраж (км)</th>
+        <th>Затраты на топливо (BYN)</th>
+      </tr>
+      </thead>
+      <tbody id="my-map-example-route-info-body">
+      <!-- Здесь будут добавляться строки с информацией о маршрутах -->
+      </tbody>
+    </table>
+  </div>
+</div>
+</div>
+<script>
+  ymaps.ready(init);
+
+  function init() {
+    var myMap = new ymaps.Map("my-map-example-map", {
+      center: [53.709807, 27.953389], // Координаты центра Беларуси
+      zoom: 7
+    });
+
+    var multiRoute;
+
+    window.buildRoutes = function () {
+      var fromInput = document.getElementById('my-map-example-from');
+      var toInput = document.getElementById('my-map-example-to');
+      var fuelConsumptionInput = parseFloat(document.getElementById('my-map-example-fuelConsumption').value);
+      var fuelPriceInput = parseFloat(document.getElementById('my-map-example-fuelPrice').value);
+
+      if (isNaN(fuelConsumptionInput) || isNaN(fuelPriceInput)) {
+        alert("Введите корректные значения для расхода топлива и стоимости бензина.");
+        return;
+      }
+
+      ymaps.route([
+        fromInput.value,
+        toInput.value
+      ]).then(function (route) {
+        multiRoute = new ymaps.multiRouter.MultiRoute({
+          referencePoints: [
+            fromInput.value,
+            toInput.value
+          ],
+          params: {
+            routingMode: 'multiRoute'
+          }
+        }, {
+          boundsAutoApply: true
+        });
+
+        // Обработчик изменения модели multiRoute
+        multiRoute.model.events.add("requestsuccess", function () {
+          // Очистка предыдущих данных в таблице
+          document.getElementById('my-map-example-route-info-body').innerHTML = "";
+
+          // Добавление информации о каждом маршруте в таблицу
+          multiRoute.getRoutes().each(function (route, index) {
+            addRouteInfo(route, index, fuelConsumptionInput, fuelPriceInput);
+          });
+        });
+
+        myMap.geoObjects.add(multiRoute);
+      });
+    };
+
+    function addRouteInfo(route, index, fuelConsumption, fuelPrice) {
+      var distance = route.properties.get("distance").text;
+
+      // Расчет затрат на топливо
+      var fuelCost = (parseFloat(distance.replace(/\D+/g, '.')) * fuelConsumption) / 100 * fuelPrice;
+
+      var row = document.getElementById('my-map-example-route-info-body').insertRow(-1);
+      var cell1 = row.insertCell(0);
+      var cell2 = row.insertCell(1);
+      var cell3 = row.insertCell(2);
+
+      cell1.innerHTML = 'Маршрут ' + (index + 1);
+      cell2.innerHTML = distance;
+      cell3.innerHTML = fuelCost.toFixed(2).replace('.', ',') + ' BYN';
+    }
+  }
+</script>
+</body>
+</html>
+<!--
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>График заказов</title>
+
+  <style>
+    canvas {
+      max-width: 800px;
+      margin: 20px auto;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+<div th:each="order : ${orderDTOs}">
+  <p th:text="${'Order ' + order.id + ': OrdersumAllProduct : ' + order.sumAllProduct + ': OrdersData : ' + #dates.format(order.dateOrder, 'dd.MM.yyyy HH:mm')}"></p>
+</div>
+&lt;!&ndash; Примерные данные &ndash;&gt;
+<script th:inline="javascript">
+  /*<![CDATA[*/
+  var orderDTOs = /*[[${orderDTOs}]]*/ []
+
+  var labels = orderDTOs.map(function(order) {
+    return 'Order_' + order.id;
+  });
+
+  var datasets = [
+    {
+      label: 'Обзор финансов по заказам',
+      data: orderDTOs.map(function(order) {
+        return order.sumAllProduct;
+      }),
+      backgroundColor: 'rgba(75, 192, 192, 0.2)',
+      borderColor: 'rgba(75, 192, 192, 1)',
+      borderWidth: 1
+    }
+  ];
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: datasets
+      }
+    });
+  });
+  /*]]>*/
+</script>
+
+&lt;!&ndash; График &ndash;&gt;
+<canvas id="myChart" width="500" height="500" style="display: block; box-sizing: border-box; height: 400px; width: 400px;"></canvas>
+
+</body>
+</html>
+-->

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>LIST ORDER</title>
+</head>
+<body>
+<h1>LIST ORDER</h1>
+<table>
+  <thead>
+  <tr>
+    <th>number</th>
+    <th>data order</th>
+    <th>ADRESS</th>
+    <th>PRODUCT</th>
+    <th>COST</th>
+    <th>STATUS</th>
+    <th>STATUS PAY</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="order : ${orders}">
+    <td > <p th:text="${order.id}"></p></td>
+    <td th:text="${#dates.format(order.dateOrder, 'dd.MM.yyyy')}"></td>
+    <td th:text="${order.deliveryAddress}"></td>
+    <td th:text="${order.productId}"></td>
+    <td th:text="${order.coast}"></td>
+    <td th:text="${order.status}"></td>
+    <td th:text="${order.statusPay}"></td>
+  </tr>
+
+  </tbody>
+</table>
+</body>
+</html>
