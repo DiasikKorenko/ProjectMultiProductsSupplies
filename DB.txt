@@ -1,0 +1,340 @@
+create table if not exists users
+(
+    id            bigserial
+        primary key,
+    fio           varchar(45)  not null,
+    email         varchar(45)  not null
+        unique,
+    tel           varchar(45)  not null,
+    adress        varchar(45)  not null,
+    password_user varchar(100) not null,
+    role          varchar(45) default USER
+);
+
+alter table users
+    owner to postgres;
+
+create table if not exists admins
+(
+    id                bigserial
+        primary key,
+    fio               varchar(45)  not null,
+    name_organization varchar(45)  not null
+        constraint "admins_nameOrganization_key"
+            unique,
+    email             varchar(45)  not null
+        unique,
+    password_admin    varchar(100) not null,
+    role              varchar(45),
+    adress            varchar(45)
+);
+
+alter table admins
+    owner to postgres;
+
+create table if not exists orders
+(
+    id               bigserial
+        constraint order_pkey
+            primary key,
+    id_user          bigint      not null
+        constraint order_users_id_fk
+            references users
+            on update cascade on delete cascade,
+    date_order       timestamp   not null,
+    delivery_address varchar(45) not null,
+    status           varchar(45),
+    status_pay       varchar(45),
+    sum_all_product  integer
+);
+
+alter table orders
+    owner to postgres;
+
+create table if not exists stock
+(
+    id           bigserial
+        constraint stock_id_key1
+            primary key,
+    adress_stock varchar(45) not null,
+    name_stock   varchar(45),
+    id_admin     bigint
+        constraint stock_admins_id_fk
+            references admins
+            on update cascade on delete cascade
+);
+
+alter table stock
+    owner to postgres;
+
+create table if not exists product
+(
+    id             bigserial
+        primary key,
+    category       varchar(45),
+    id_stock       bigint
+        constraint product_stock_id_fk
+            references stock
+            on update cascade on delete cascade,
+    name_product   varchar(45),
+    price          integer,
+    manufacturer   varchar(45),
+    purchase_price integer,
+    count          integer,
+    id_admin       bigint
+        constraint product_admins_id_fk
+            references admins
+            on update cascade on delete cascade,
+    description    varchar(1000),
+    subcategory    varchar(45),
+    chapter        varchar(45)
+);
+
+alter table product
+    owner to postgres;
+
+create table if not exists orders_product
+(
+    id              bigserial
+        primary key,
+    id_order        bigint
+        constraint orders_product_orders_id_fk
+            references orders
+            on update cascade on delete cascade,
+    id_product      bigint
+        constraint orders_product_product_id_fk
+            references product
+            on update cascade on delete cascade,
+    quantity        integer,
+    total_cost      integer,
+    manufacturer_id integer
+        constraint orders_product_admins_id_fk
+            references admins
+            on update cascade on delete cascade,
+    date            timestamp
+);
+
+alter table orders_product
+    owner to postgres;
+
+create table if not exists task
+(
+    id          serial
+        primary key,
+    id_admin    bigint
+        constraint task_admins_id_fk
+            references admins
+            on update cascade on delete cascade,
+    name_task   varchar(45),
+    discription varchar(1500),
+    date_task   varchar(45)
+);
+
+alter table task
+    owner to postgres;
+
+create table if not exists images
+(
+    id         bigserial
+        primary key,
+    image_data bytea,
+    id_admin   bigint
+        constraint images_admins_id_fk
+            references admins
+            on update cascade on delete cascade,
+    id_product bigint
+        constraint images_product_id_fk
+            references product
+            on update cascade on delete cascade
+);
+
+alter table images
+    owner to postgres;
+
+create table if not exists cart
+(
+    id       serial
+        primary key,
+    number   varchar(16) not null
+        unique,
+    validity varchar(10) not null,
+    cvv      integer,
+    id_user  bigint
+        constraint cart_users_id_fk
+            references users
+            on update cascade on delete cascade,
+    sum      integer
+);
+
+alter table cart
+    owner to postgres;
+
+create table if not exists basket
+(
+    id         serial
+        primary key,
+    id_user    bigint
+        constraint basket_users_id_fk
+            references users
+            on update cascade on delete cascade,
+    id_product bigint
+        constraint basket_product_id_fk
+            references product
+            on update cascade on delete cascade
+);
+
+alter table basket
+    owner to postgres;
+
+create table if not exists delivery
+(
+    id       bigserial
+        primary key,
+    route    varchar(45),
+    expenses double precision,
+    id_order bigint
+        constraint delivery_orders_id_fk
+            references orders
+            on update cascade on delete cascade,
+    id_admin bigint
+        constraint delivery_admins_id_fk
+            references admins
+            on update cascade on delete cascade
+);
+
+alter table delivery
+    owner to postgres;
+
+create table if not exists basket_all
+(
+    id         bigserial
+        primary key
+        unique,
+    id_user    bigint not null
+        constraint basket_all_users_id_fk
+            references users
+            on update cascade on delete cascade,
+    id_product bigint not null
+        constraint basket_all_product_id_fk
+            references product
+            on update cascade on delete cascade
+);
+
+alter table basket_all
+    owner to postgres;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+sequence 
+
+
+
+
+
+
+create sequence users_id_seq;
+
+alter sequence users_id_seq owner to postgres;
+
+alter sequence users_id_seq owned by users.id;
+
+create sequence admins_id_seq;
+
+alter sequence admins_id_seq owner to postgres;
+
+alter sequence admins_id_seq owned by admins.id;
+
+create sequence orders_id_seq;
+
+alter sequence orders_id_seq owner to postgres;
+
+alter sequence orders_id_seq owned by orders.id;
+
+create sequence stock_id_seq;
+
+alter sequence stock_id_seq owner to postgres;
+
+alter sequence stock_id_seq owned by stock.id;
+
+create sequence product_id_seq;
+
+alter sequence product_id_seq owner to postgres;
+
+alter sequence product_id_seq owned by product.id;
+
+create sequence orders_product_id_seq;
+
+alter sequence orders_product_id_seq owner to postgres;
+
+alter sequence orders_product_id_seq owned by orders_product.id;
+
+create sequence task_id_seq
+    as integer;
+
+alter sequence task_id_seq owner to postgres;
+
+alter sequence task_id_seq owned by task.id;
+
+create sequence images_id_seq;
+
+alter sequence images_id_seq owner to postgres;
+
+alter sequence images_id_seq owned by images.id;
+
+create sequence cart_id_seq
+    as integer;
+
+alter sequence cart_id_seq owner to postgres;
+
+alter sequence cart_id_seq owned by cart.id;
+
+create sequence basket_id_seq
+    as integer;
+
+alter sequence basket_id_seq owner to postgres;
+
+alter sequence basket_id_seq owned by basket.id;
+
+create sequence delivery_id_seq;
+
+alter sequence delivery_id_seq owner to postgres;
+
+alter sequence delivery_id_seq owned by delivery.id;
+
+create sequence basket_all_id_seq;
+
+alter sequence basket_all_id_seq owner to postgres;
+
+alter sequence basket_all_id_seq owned by basket_all.id;
+
